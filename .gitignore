@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+
+# Xcode user-specific data (per-user window state, breakpoints, private schemes)
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+
+# Build output
+build/
+DerivedData/
+*.moved-aside
+
+# Archives and exported products
+*.xcarchive
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Icon working files (keep only what's in Assets)
+icon_*.png

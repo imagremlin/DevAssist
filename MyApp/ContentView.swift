@@ -6,6 +6,10 @@ struct ContentView: View {
     @State private var selection: Clip.ID?
     @State private var editingClip: Clip?
     @State private var showCopied = false
+    @State private var showCleared = false
+    @State private var clearTask: Task<Void, Never>?
+    @State private var copiedTask: Task<Void, Never>?
+    @State private var clearedTask: Task<Void, Never>?
     
     private var pb = NSPasteboard.general
     
@@ -13,13 +17,40 @@ struct ContentView: View {
         selection.flatMap { store[$0] }
     }
     
-    func copyToClipboard(_ text : String) {
+    private func copyToClipboard(_ text: String, concealed: Bool = false) {
         pb.clearContents()
         pb.setString(text, forType: .string)
-        showCopied = true
-        Task {
-            try? await Task.sleep(for: .seconds(1.5))
-            withAnimation { showCopied = false }
+        if concealed {
+            pb.setData(Data(), forType: .concealed)
+        }
+        let count = pb.changeCount
+        withAnimation { showCopied = true }
+        copiedTask?.cancel()
+        copiedTask = Task {
+            do {
+                try await Task.sleep(for: .seconds(1.5))
+                withAnimation { showCopied = false }
+            } catch { }
+        }
+        clearTask?.cancel()
+        if concealed {
+            clearTask = Task {
+                do {
+                    try await Task.sleep(for: .seconds(30))
+                    
+                    if count == pb.changeCount {
+                        pb.clearContents()
+                        withAnimation {showCleared = true}
+                        clearedTask?.cancel()
+                        clearedTask = Task {
+                            do {
+                                try await Task.sleep(for: .seconds(1.5))
+                                withAnimation { showCleared = false }
+                            } catch { }
+                        }
+                    }
+                } catch  { }
+            }
         }
     }
     
@@ -58,7 +89,7 @@ struct ContentView: View {
                     }
                 } primaryAction: { ids in
                     if let id = ids.first, let clip = store[id] {
-                        copyToClipboard(clip.text)
+                        copyToClipboard(clip.text, concealed: clip.isMasked)
                     }
                 }
             
@@ -104,7 +135,18 @@ struct ContentView: View {
                     }.padding()
                         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
                 }
+                if showCleared {
+                    VStack {
+                        Image(systemName: "eraser.fill")
+                            .font(.system(size: 40))
+                        Text("Cleared")
+                    }.padding()
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+                }
             }
     }
 }
 
+extension NSPasteboard.PasteboardType {
+    static let concealed = Self("org.nspasteboard.ConcealedType")
+}

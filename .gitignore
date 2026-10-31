@@ -21,6 +21,3 @@ DerivedData/
 # Swift Package Manager
 .build/
 .swiftpm/
-
-# Icon working files (keep only what's in Assets)
-icon_*.png

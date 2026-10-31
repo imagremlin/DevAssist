@@ -18,6 +18,9 @@ DerivedData/
 *.dSYM.zip
 *.dSYM
 
+# Machine-specific build settings
+Local.xcconfig
+
 # Swift Package Manager
 .build/
 .swiftpm/

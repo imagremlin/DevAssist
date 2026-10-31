@@ -1,0 +1,11 @@
+// Base.xcconfig
+// Shared build settings for DevAssist (committed to git).
+
+// Default: ad hoc signing ("Sign to Run Locally"), so a fresh clone builds anywhere.
+CODE_SIGN_STYLE = Manual
+CODE_SIGN_IDENTITY = -
+DEVELOPMENT_TEAM =
+
+// Optional per-machine overrides, e.g. a local signing certificate.
+// Local.xcconfig is git-ignored; the "?" means it's fine if it doesn't exist.
+#include? "Local.xcconfig"

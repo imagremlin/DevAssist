@@ -5,16 +5,25 @@ struct ContentView: View {
     @State private var store = ClipStore()
     @State private var selection: Clip.ID?
     @State private var editingClip: Clip?
-    @State private var showCopied = false
-    @State private var showCleared = false
-    @State private var clearTask: Task<Void, Never>?
-    @State private var copiedTask: Task<Void, Never>?
-    @State private var clearedTask: Task<Void, Never>?
+    @State private var clearClipboardTask: Task<Void, Never>?
+    @State private var toast: Toast?
+    @State private var toastTask: Task<Void, Never>?
     
     private var pb = NSPasteboard.general
     
     private var selectedClip: Clip? {
         selection.flatMap { store[$0] }
+    }
+    
+    private func show(_ toast: Toast) {
+        withAnimation { self.toast = toast }
+        toastTask?.cancel()
+        toastTask = Task {
+            do {
+                try await Task.sleep(for: .seconds(1.5))
+                withAnimation { self.toast = nil }
+            } catch { }
+        }
     }
     
     private func copyToClipboard(_ text: String, concealed: Bool = false) {
@@ -24,30 +33,16 @@ struct ContentView: View {
             pb.setData(Data(), forType: .concealed)
         }
         let count = pb.changeCount
-        withAnimation { showCopied = true }
-        copiedTask?.cancel()
-        copiedTask = Task {
-            do {
-                try await Task.sleep(for: .seconds(1.5))
-                withAnimation { showCopied = false }
-            } catch { }
-        }
-        clearTask?.cancel()
+        show(.copied)
+        clearClipboardTask?.cancel()
         if concealed {
-            clearTask = Task {
+            clearClipboardTask = Task {
                 do {
                     try await Task.sleep(for: .seconds(30))
                     
                     if count == pb.changeCount {
                         pb.clearContents()
-                        withAnimation {showCleared = true}
-                        clearedTask?.cancel()
-                        clearedTask = Task {
-                            do {
-                                try await Task.sleep(for: .seconds(1.5))
-                                withAnimation { showCleared = false }
-                            } catch { }
-                        }
+                        show(.cleared)
                     }
                 } catch  { }
             }
@@ -127,21 +122,14 @@ struct ContentView: View {
         }.padding()
             .frame(minWidth: 500, minHeight: 350)
             .overlay {
-                if showCopied {
+                if let toast {
                     VStack {
-                        Image(systemName: "doc.on.clipboard")
-                            .font(.system(size: 40))
-                        Text("Copied")
+                        Image(systemName: toast.symbol)
+                                .font(.system(size: 40))
+                        Text(toast.caption)
                     }.padding()
                         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
-                }
-                if showCleared {
-                    VStack {
-                        Image(systemName: "eraser.fill")
-                            .font(.system(size: 40))
-                        Text("Cleared")
-                    }.padding()
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+                        .transition(.opacity)
                 }
             }
     }

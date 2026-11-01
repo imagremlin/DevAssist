@@ -26,6 +26,10 @@ struct ContentView: View {
         }
     }
     
+    private func copy(_ clip: Clip) {
+        copyToClipboard(clip.text, concealed: clip.isMasked)
+    }
+    
     private func copyToClipboard(_ text: String, concealed: Bool = false) {
         pb.clearContents()
         pb.setString(text, forType: .string)
@@ -50,15 +54,16 @@ struct ContentView: View {
     }
     
     var body: some View {
-        HStack {
+        
+        VStack(spacing : 0) {
             List(store.displayClips, selection: $selection) { clip in
                 HStack {
                     Text(clip.isMasked ? clip.mask : clip.firstLine).help(clip.isMasked ? "" : clip.text)
+                    Spacer()
+                    if clip.isMasked {
+                        Image(systemName: "eye.slash")
+                    }
                     if clip.isLocked {
-                        Spacer()
-                        if clip.isMasked {
-                            Image(systemName: "eye.slash")
-                        }
                         Image(systemName: "lock.fill")
                     }
                 }
@@ -67,37 +72,40 @@ struct ContentView: View {
                 PropertiesView(clip: clip) { updated in
                     store.update(updated)
                 }
-            }.listStyle(.bordered)
+            }.listStyle(.plain)
                 .contextMenu(forSelectionType: Clip.ID.self) { ids in
                     if let id = ids.first, let clip = store[id] {
                         Button("Copy") {
-                            copyToClipboard(clip.text)
+                            copy(clip)
                         }
                         
                         Button("Remove") {
                             store.remove(clip.id)
                         }.disabled(clip.isLocked)
                         
-                        Button("Properties…") {
+                        Button("Get information…") {
                             editingClip = clip
                         }
                     }
                 } primaryAction: { ids in
                     if let id = ids.first, let clip = store[id] {
-                        copyToClipboard(clip.text, concealed: clip.isMasked)
+                        copy(clip)
                     }
                 }
-            
-            VStack {
+            Divider()
+            HStack(spacing: 0) {
                 
                 Button {
                     if let text = pb.string(forType: .string), !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                         store.add(text)
                     }
                 } label: {
-                    Text("Add")
-                        .frame(maxWidth: .infinity)
-                }.keyboardShortcut("v", modifiers: .command)
+                    Image(systemName: "plus")
+                        .frame(width: 24, height: 22)
+                        .contentShape(Rectangle())
+                }.buttonStyle(.borderless)
+                    .keyboardShortcut("v", modifiers: .command)
+                    .help("Add from clipboard")
                 
                 Button {
                     if let selection {
@@ -105,27 +113,47 @@ struct ContentView: View {
                     }
                     selection = nil
                 } label: {
-                    Text("Remove")
-                        .frame(maxWidth: .infinity)
-                }.disabled(selectedClip?.isLocked ?? true)
+                    Image(systemName: "minus")
+                        .frame(width: 24, height: 22)
+                        .contentShape(Rectangle())
+                }.buttonStyle(.borderless)
+                    .disabled(selectedClip?.isLocked ?? true)
+                    .help("Remove current")
+                
+                Button {
+                    editingClip = selectedClip
+                } label: {
+                    Image(systemName: "info")
+                        .frame(width: 24, height: 22)
+                        .contentShape(Rectangle())
+                }.buttonStyle(.borderless)
+                    .disabled(selectedClip == nil)
+                    .help("Get information")
                 
                 Button {
                     store.removeAll()
                     selection = nil
                 } label: {
-                    Text("Clear")
-                        .frame(maxWidth: .infinity)
-                }.disabled(store.clips.isEmpty)
+                    Image(systemName: "trash")
+                        .frame(width: 24, height: 22)
+                        .contentShape(Rectangle())
+                }.buttonStyle(.borderless)
+                    .disabled(store.clips.isEmpty)
+                    .help("Clear non locked")
                 
                 Spacer()
-            }.frame(maxWidth: 100)
-        }.padding()
-            .frame(minWidth: 500, minHeight: 350)
+                
+            }.frame(height: 24)
+            
+        }.overlay(RoundedRectangle(cornerRadius: 4).stroke(.separator))
+        
+            .padding()
+            .frame(minWidth: 250, minHeight: 250)
             .overlay {
                 if let toast {
                     VStack {
                         Image(systemName: toast.symbol)
-                                .font(.system(size: 40))
+                            .font(.system(size: 40))
                         Text(toast.caption)
                     }.padding()
                         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))

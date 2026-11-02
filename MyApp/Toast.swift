@@ -12,15 +12,15 @@ enum Toast {
     
     var symbol: String {
         switch self {
-        case .copied:  "doc.on.clipboard"
-        case .cleared: "eraser.fill"
+            case .copied:  "doc.on.clipboard"
+            case .cleared: "eraser.fill"
         }
     }
     
     var caption: String {
         switch self {
-        case .copied:  "Copied"
-        case .cleared: "Cleared"
+            case .copied:  "Copied"
+            case .cleared: "Cleared"
         }
     }
 }

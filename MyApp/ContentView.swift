@@ -2,14 +2,14 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @State private var store = ClipStore()
+    @Environment(ClipStore.self) private var store
+    
     @State private var selection: Clip.ID?
     @State private var editingClip: Clip?
-    @State private var clearClipboardTask: Task<Void, Never>?
     @State private var toast: Toast?
     @State private var toastTask: Task<Void, Never>?
     
-    private var pb = NSPasteboard.general
+    private let clipboardService = ClipboardService()
     
     private var selectedClip: Clip? {
         selection.flatMap { store[$0] }
@@ -27,30 +27,8 @@ struct ContentView: View {
     }
     
     private func copy(_ clip: Clip) {
-        copyToClipboard(clip.text, concealed: clip.isMasked)
-    }
-    
-    private func copyToClipboard(_ text: String, concealed: Bool = false) {
-        pb.clearContents()
-        pb.setString(text, forType: .string)
-        if concealed {
-            pb.setData(Data(), forType: .concealed)
-        }
-        let count = pb.changeCount
+        clipboardService.copy(clip.text, concealed: clip.isMasked)
         show(.copied)
-        clearClipboardTask?.cancel()
-        if concealed {
-            clearClipboardTask = Task {
-                do {
-                    try await Task.sleep(for: .seconds(30))
-                    
-                    if count == pb.changeCount {
-                        pb.clearContents()
-                        show(.cleared)
-                    }
-                } catch  { }
-            }
-        }
     }
     
     var body: some View {
@@ -96,7 +74,7 @@ struct ContentView: View {
             HStack(spacing: 0) {
                 
                 Button {
-                    if let text = pb.string(forType: .string), !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    if let text = clipboardService.readText() {
                         store.add(text)
                     }
                 } label: {
@@ -146,7 +124,6 @@ struct ContentView: View {
             }.frame(height: 24)
             
         }.overlay(RoundedRectangle(cornerRadius: 4).stroke(.separator))
-        
             .padding()
             .frame(minWidth: 250, minHeight: 250)
             .overlay {
@@ -159,6 +136,8 @@ struct ContentView: View {
                         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
                         .transition(.opacity)
                 }
+            }.onChange(of: clipboardService.lastCleared) {
+                show(.cleared)
             }
     }
 }

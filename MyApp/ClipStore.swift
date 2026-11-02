@@ -21,6 +21,10 @@ class ClipStore {
     var displayClips: [Clip] {
         clips.sorted { $0.isLocked && !$1.isLocked }
     }
+    
+    var recentClips: ArraySlice<Clip> {
+        clips.sorted { ($0.lastUsed ?? .distantPast) > ($1.lastUsed ?? .distantPast) }.prefix(10)
+    }
 
     private var savePath: URL {
         let folder = URL.applicationSupportDirectory.appending(path: "DevAssist")
@@ -36,16 +40,26 @@ class ClipStore {
         load()
     }
          
-    func add(_ text: String) {
+    @discardableResult
+    func add(_ text: String) -> Clip? {
         if !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            clips.append(Clip(text: text, mask: ""))
+            let newClip = Clip(text: text, title: "", lastUsed: .now)
+            clips.append(newClip)
+            return newClip
+        }
+        return nil
+    }
+    
+    func markUsed(_ clip : Clip) {
+        if let i = clips.firstIndex(where: { $0.id == clip.id }) {
+            clips[i].lastUsed = .now
         }
     }
     
     func update(_ updatedClip: Clip) {
         if let i = clips.firstIndex(where: { $0.id == updatedClip.id }) {
-               clips[i] = updatedClip
-           }
+            clips[i] = updatedClip
+        }
     }
     
     func remove(_ id: Clip.ID) {

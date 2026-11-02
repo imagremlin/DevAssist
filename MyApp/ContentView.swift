@@ -3,16 +3,22 @@ import SwiftUI
 struct ContentView: View {
     
     @Environment(ClipStore.self) private var store
+    @Environment(ClipboardService.self) private var clipboardService
     
     @State private var selection: Clip.ID?
     @State private var editingClip: Clip?
     @State private var toast: Toast?
     @State private var toastTask: Task<Void, Never>?
-    
-    private let clipboardService = ClipboardService()
+    @State private var searchText = ""
+    @State private var confirmingClear = false
     
     private var selectedClip: Clip? {
         selection.flatMap { store[$0] }
+    }
+    
+    private var filteredClips: [Clip] {
+        guard !searchText.isEmpty else { return store.displayClips }
+        return store.displayClips.filter { $0.matches(searchText) }
     }
     
     private func show(_ toast: Toast) {
@@ -27,22 +33,44 @@ struct ContentView: View {
     }
     
     private func copy(_ clip: Clip) {
-        clipboardService.copy(clip.text, concealed: clip.isMasked)
+        clipboardService.copy(clip.text, concealed: clip.isSensitive)
+        store.markUsed(clip)
         show(.copied)
     }
     
     var body: some View {
         
         VStack(spacing : 0) {
-            List(store.displayClips, selection: $selection) { clip in
+            HStack(spacing: 4) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.secondary)
+                TextField("Search", text: $searchText)
+                    .textFieldStyle(.plain)
+                if !searchText.isEmpty {
+                    Button { searchText = "" } label: {
+                        Image(systemName: "xmark.circle.fill")
+                    }
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(.secondary)
+                }
+            }
+            .padding(6)
+            Divider()
+            List(filteredClips, selection: $selection) { clip in
                 HStack {
-                    Text(clip.isMasked ? clip.mask : clip.firstLine).help(clip.isMasked ? "" : clip.text)
+                    Text(clip.displayText)
+                        .italic(!clip.title.isEmpty)
+                        .help(clip.tooltip)
                     Spacer()
-                    if clip.isMasked {
+                    if clip.isSensitive {
                         Image(systemName: "eye.slash")
+                            .foregroundStyle(.secondary)
+                            
                     }
                     if clip.isLocked {
                         Image(systemName: "lock.fill")
+                            .foregroundStyle(.secondary)
+                            
                     }
                 }
                 
@@ -52,11 +80,17 @@ struct ContentView: View {
                 }
             }.listStyle(.plain)
                 .contextMenu(forSelectionType: Clip.ID.self) { ids in
-                    if let id = ids.first, let clip = store[id] {
+                    if let id = ids.first, var clip = store[id] {
                         Button("Copy") {
                             copy(clip)
                         }
-                        
+                        Button("Update") {
+                            if let text = clipboardService.readText() {
+                                clip.text = text
+                                store.update(clip)
+                                show(.updated)
+                            }
+                        }
                         Button("Remove") {
                             store.remove(clip.id)
                         }.disabled(clip.isLocked)
@@ -69,13 +103,20 @@ struct ContentView: View {
                     if let id = ids.first, let clip = store[id] {
                         copy(clip)
                     }
+                }.onDeleteCommand {
+                    if let selection, let clip = store[selection], !clip.isLocked {
+                        store.remove(clip.id)
+                        self.selection = nil
+                    }
+
                 }
             Divider()
             HStack(spacing: 0) {
-                
                 Button {
                     if let text = clipboardService.readText() {
-                        store.add(text)
+                        if let newClip = store.add(text), NSEvent.modifierFlags.contains(.option) {
+                            editingClip = newClip
+                        }
                     }
                 } label: {
                     Image(systemName: "plus")
@@ -83,7 +124,7 @@ struct ContentView: View {
                         .contentShape(Rectangle())
                 }.buttonStyle(.borderless)
                     .keyboardShortcut("v", modifiers: .command)
-                    .help("Add from clipboard")
+                    .help("Add from clipboard. (⌥-click to add with title)")
                 
                 Button {
                     if let selection {
@@ -109,8 +150,7 @@ struct ContentView: View {
                     .help("Get information")
                 
                 Button {
-                    store.removeAll()
-                    selection = nil
+                    confirmingClear = true
                 } label: {
                     Image(systemName: "trash")
                         .frame(width: 24, height: 22)
@@ -138,6 +178,14 @@ struct ContentView: View {
                 }
             }.onChange(of: clipboardService.lastCleared) {
                 show(.cleared)
+            }.confirmationDialog("Clear all unlocked clips?", isPresented: $confirmingClear) {
+                Button("Clear", role: .destructive) {
+                    store.removeAll()
+                    selection = nil
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Locked clips will be kept.")
             }
     }
 }

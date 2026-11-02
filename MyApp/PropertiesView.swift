@@ -21,8 +21,8 @@ struct PropertiesView: View {
     var body: some View {
         Form {
             Toggle("Locked", isOn: $draft.isLocked)
-            Toggle("Masked", isOn: $draft.isMasked)
-            TextField("Mask", text: $draft.mask)
+            Toggle("Sensitive", isOn: $draft.isSensitive)
+            TextField("Title", text: $draft.title)
         }.toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button("Cancel") {
@@ -33,7 +33,7 @@ struct PropertiesView: View {
                 Button("Save") {
                     onSave(draft)
                     dismiss()
-                }.disabled(draft.isMasked && draft.mask.isEmpty)
+                }.disabled(draft.isSensitive && draft.title.isEmpty)
             }
         }.padding()
     }

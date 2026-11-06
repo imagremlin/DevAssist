@@ -14,10 +14,26 @@ class ClipStore {
     
     var encryptionKey : SymmetricKey
     
+    @ObservationIgnored private var pending: [Clip.ID: Clip] = [:]
+    
+    private var savePath: URL {
+        let folder = URL.applicationSupportDirectory.appending(path: "DevAssist")
+        return folder.appending(path: "clips.json")
+    }
+    
     private(set) var clips: [Clip] = [] {
         didSet { save() }
     }
-
+    
+    init() {
+        encryptionKey = Self.loadOrCreateKey()
+        load()
+    }
+    
+    subscript(id: Clip.ID) -> Clip? {
+        clips.first { $0.id == id }
+    }
+    
     var displayClips: [Clip] {
         clips.sorted { $0.isLocked && !$1.isLocked }
     }
@@ -26,42 +42,29 @@ class ClipStore {
         clips.sorted { ($0.lastUsed ?? .distantPast) > ($1.lastUsed ?? .distantPast) }.prefix(10)
     }
 
-    private var savePath: URL {
-        let folder = URL.applicationSupportDirectory.appending(path: "DevAssist")
-        return folder.appending(path: "clips.json")
-    }
-
-    subscript(id: Clip.ID) -> Clip? {
-        clips.first { $0.id == id }
-    }
-    
-    init() {
-        encryptionKey = Self.loadOrCreateKey()
-        load()
-    }
-         
-    @discardableResult
-    func add(_ text: String) -> Clip? {
+    func makeClip(_ text: String) -> Clip? {
         if !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            let newClip = Clip(text: text, title: "", lastUsed: .now)
-            clips.append(newClip)
-            return newClip
+            return Clip(text: text, title: "", lastUsed: .now)
         }
         return nil
     }
     
+    @discardableResult
+    func addOrUpdate(_ clip: Clip) -> Clip {
+        if let i = clips.firstIndex(where: { $0.id == clip.id }) {
+            clips[i] = clip
+        } else {
+            clips.append(clip)
+        }
+        return clip
+    }
+        
     func markUsed(_ clip : Clip) {
         if let i = clips.firstIndex(where: { $0.id == clip.id }) {
             clips[i].lastUsed = .now
         }
     }
-    
-    func update(_ updatedClip: Clip) {
-        if let i = clips.firstIndex(where: { $0.id == updatedClip.id }) {
-            clips[i] = updatedClip
-        }
-    }
-    
+        
     func remove(_ id: Clip.ID) {
         clips.removeAll { $0.id == id && !$0.isLocked }
     }
@@ -73,6 +76,48 @@ class ClipStore {
     func toggleLock(_ id: Clip.ID) {
         if let i = clips.firstIndex(where: { $0.id == id }) {
             clips[i].isLocked.toggle()
+        }
+    }
+
+    func addPending(_ clip: Clip) {
+        pending[clip.id] = clip
+    }
+    func pendingClip(_ id: Clip.ID) -> Clip? {
+        pending[id]
+    }
+    
+    func discardPending(_ id: Clip.ID) {
+        pending[id] = nil
+    }
+    
+    private func load() {
+        do {
+            let fileData = try Data(contentsOf: savePath)
+            let box = try AES.GCM.SealedBox(combined: fileData)
+            let jsonData = try AES.GCM.open(box, using: encryptionKey)
+            clips = try JSONDecoder().decode([Clip].self, from: jsonData)
+        } catch {
+            
+            let stamp = Int(Date.now.timeIntervalSince1970)
+            let backup = savePath.deletingLastPathComponent()
+                                 .appending(path: "clips-\(stamp).bak")
+            try? FileManager.default.moveItem(at: savePath, to: backup)
+            
+            print("Load Failed: \(error)")
+        }
+    }
+    
+    private func save() {
+        do {
+            let folder = URL.applicationSupportDirectory.appending(path: "DevAssist")
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            let jsonData = try JSONEncoder().encode(clips)
+            let sealed = try AES.GCM.seal(jsonData, using: encryptionKey)
+            if let data = sealed.combined {
+                try data.write(to: savePath)
+            }
+        } catch {
+            print("Save Failed: \(error)")
         }
     }
     
@@ -113,36 +158,4 @@ class ClipStore {
             fatalError("Keychain load failed: \(status)")
         }
     }
-    
-    private func load() {
-        do {
-            let fileData = try Data(contentsOf: savePath)
-            let box = try AES.GCM.SealedBox(combined: fileData)
-            let jsonData = try AES.GCM.open(box, using: encryptionKey)
-            clips = try JSONDecoder().decode([Clip].self, from: jsonData)
-        } catch {
-            
-            let stamp = Int(Date.now.timeIntervalSince1970)
-            let backup = savePath.deletingLastPathComponent()
-                                 .appending(path: "clips-\(stamp).bak")
-            try? FileManager.default.moveItem(at: savePath, to: backup)
-            
-            print("Load Failed: \(error)")
-        }
-    }
-    
-    private func save() {
-        do {
-            let folder = URL.applicationSupportDirectory.appending(path: "DevAssist")
-            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-            let jsonData = try JSONEncoder().encode(clips)
-            let sealed = try AES.GCM.seal(jsonData, using: encryptionKey)
-            if let data = sealed.combined {
-                try data.write(to: savePath)
-            }
-        } catch {
-            print("Save Failed: \(error)")
-        }
-    }
-    
 }

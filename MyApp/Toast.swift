@@ -8,13 +8,14 @@
 import Foundation
 
 enum Toast {
-    case copied, cleared, updated
+    case copied, cleared, updated, processed
     
     var symbol: String {
         switch self {
             case .copied:  "doc.on.clipboard"
             case .cleared: "eraser.fill"
-            case .updated: "doc.on.clipboard"
+            case .updated: "square.and.pencil"
+            case .processed: "gearshape.2"
         }
     }
     
@@ -23,6 +24,8 @@ enum Toast {
             case .copied:  "Copied"
             case .cleared: "Cleared"
             case .updated: "Updated"
+            case .processed: "Processed"
         }
     }
+    
 }

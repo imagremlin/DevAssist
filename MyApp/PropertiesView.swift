@@ -19,21 +19,23 @@ struct PropertiesView: View {
     }
     
     var body: some View {
-        Form {
-            Toggle("Locked", isOn: $draft.isLocked)
-            Toggle("Sensitive", isOn: $draft.isSensitive)
-            TextField("Title", text: $draft.title)
-        }.toolbar {
-            ToolbarItem(placement: .cancellationAction) {
+        VStack {
+            Form {
+                Toggle("Locked", isOn: $draft.isLocked)
+                Toggle("Sensitive", isOn: $draft.isSensitive)
+                TextField("Title", text: $draft.title)
+            }
+            Divider()
+            HStack{
+                Spacer()
                 Button("Cancel") {
                     dismiss()
-                }
-            }
-            ToolbarItem(placement: .confirmationAction) {
+                }.keyboardShortcut(.cancelAction)
                 Button("Save") {
                     onSave(draft)
                     dismiss()
-                }.disabled(draft.isSensitive && draft.title.isEmpty)
+                }.keyboardShortcut(.defaultAction)
+                .disabled(draft.isSensitive && draft.title.isEmpty)
             }
         }.padding()
     }

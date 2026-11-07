@@ -2,7 +2,7 @@ import SwiftUI
 
 @main struct DevAssist: App {
     
-    @State private var store = ClipStore()
+    @State private var store = ClipStore(persistent: !ProcessInfo.processInfo.isRunningTests)
     @State private var clipboardService = ClipboardService()
     
     var body: some Scene {

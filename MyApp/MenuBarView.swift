@@ -21,11 +21,11 @@ struct MenuBarView: View {
         }
         Divider()
         Button("Add from Clipboard") {
-            if let text = clipboardService.readText(), let clip = store.makeClip(text) {
+            if let text = clipboardService.readText(), let clip = ClipStore.makeClip(text) {
                 store.addOrUpdate(clip)
             }
         }.modifierKeyAlternate(.option, {Button("Add with Title") {
-            if let text = clipboardService.readText(),let clip = store.makeClip(text) {
+            if let text = clipboardService.readText(),let clip = ClipStore.makeClip(text) {
                 store.addPending(clip)
                 openWindow.bringToFront(.clipProperties, value: clip.id)
             }

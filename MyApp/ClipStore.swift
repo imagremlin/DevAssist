@@ -13,6 +13,7 @@ import CryptoKit
 class ClipStore {
     
     var encryptionKey : SymmetricKey
+    var persistent: Bool
     
     @ObservationIgnored private var pending: [Clip.ID: Clip] = [:]
     
@@ -25,9 +26,11 @@ class ClipStore {
         didSet { save() }
     }
     
-    init() {
-        encryptionKey = Self.loadOrCreateKey()
-        load()
+    init(persistent: Bool = true) {
+        self.persistent = persistent
+        encryptionKey = persistent ? Self.loadOrCreateKey()
+                                   : SymmetricKey(size: .bits256)
+        if persistent { load() }
     }
     
     subscript(id: Clip.ID) -> Clip? {
@@ -42,7 +45,7 @@ class ClipStore {
         clips.sorted { ($0.lastUsed ?? .distantPast) > ($1.lastUsed ?? .distantPast) }.prefix(10)
     }
 
-    func makeClip(_ text: String) -> Clip? {
+    static func makeClip(_ text: String) -> Clip? {
         if !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return Clip(text: text, title: "", lastUsed: .now)
         }
@@ -108,6 +111,7 @@ class ClipStore {
     }
     
     private func save() {
+        guard persistent else { return }
         do {
             let folder = URL.applicationSupportDirectory.appending(path: "DevAssist")
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)

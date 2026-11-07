@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Clip: Identifiable, Codable {
+nonisolated struct Clip: Identifiable, Codable, Equatable {
     var id = UUID()
     var text: String
     var isLocked = false
@@ -35,7 +35,7 @@ struct Clip: Identifiable, Codable {
     }
 }
 
-extension Clip {
+nonisolated extension Clip {
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         let legacy = try decoder.container(keyedBy: LegacyKeys.self)
@@ -46,17 +46,18 @@ extension Clip {
         isSensitive = try c.decodeIfPresent(Bool.self, forKey: .isSensitive)
                    ?? legacy.decodeIfPresent(Bool.self, forKey: .isMasked)
                    ?? false
-        title = try c.decodeIfPresent(String.self, forKey: .title) ?? ""
+        title = try c.decodeIfPresent(String.self, forKey: .title) ??
+                    legacy.decodeIfPresent(String.self, forKey: .mask) ??
+                    ""
         lastUsed = try c.decodeIfPresent(Date.self, forKey: .lastUsed)
     }
     
-    enum CodingKeys: String, CodingKey {
-        case id, text, isLocked, isSensitive, lastUsed
-        case title = "mask"        // property 'title', stored under the old key "mask"
+    nonisolated enum CodingKeys: String, CodingKey {
+        case id, text, isLocked, isSensitive, lastUsed, title
     }
     
-    private enum LegacyKeys: String, CodingKey {
-        case isMasked
+    nonisolated private enum LegacyKeys: String, CodingKey {
+        case isMasked, mask
     }
 }
 

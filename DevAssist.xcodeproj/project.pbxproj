@@ -6,8 +6,19 @@
 	objectVersion = 90;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		A01683E8309EC8C600BAFF46 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 000000000000000000000000 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 000000000000000100000000;
+			remoteInfo = "Dev Assist";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		000000000000000000000120 /* Dev Assist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Dev Assist.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A01683E4309EC8C600BAFF46 /* Dev AssistTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Dev AssistTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -16,10 +27,20 @@
 			path = MyApp;
 			sourceTree = "<group>";
 		};
+		A01683E5309EC8C600BAFF46 /* Dev AssistTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Dev AssistTests";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		000000000000000130000000 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		A01683E1309EC8C600BAFF46 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
 			);
@@ -31,6 +52,7 @@
 			isa = PBXGroup;
 			children = (
 				000000000000000000000010 /* MyApp */,
+				A01683E5309EC8C600BAFF46 /* Dev AssistTests */,
 				000000000000000000000020 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -39,6 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				000000000000000000000120 /* Dev Assist.app */,
+				A01683E4309EC8C600BAFF46 /* Dev AssistTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -64,6 +87,27 @@
 			productReference = 000000000000000000000120 /* Dev Assist.app */;
 			productType = "com.apple.product-type.application";
 		};
+		A01683E3309EC8C600BAFF46 /* Dev AssistTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A01683EC309EC8C600BAFF46 /* Build configuration list for PBXNativeTarget "Dev AssistTests" */;
+			buildPhases = (
+				A01683E0309EC8C600BAFF46 /* Sources */,
+				A01683E1309EC8C600BAFF46 /* Frameworks */,
+				A01683E2309EC8C600BAFF46 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A01683E9309EC8C600BAFF46 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A01683E5309EC8C600BAFF46 /* Dev AssistTests */,
+			);
+			name = "Dev AssistTests";
+			productName = "Dev AssistTests";
+			productReference = A01683E4309EC8C600BAFF46 /* Dev AssistTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -71,11 +115,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2630;
+				LastSwiftUpdateCheck = 2710;
 				LastUpgradeCheck = 2700;
 				TargetAttributes = {
 					000000000000000100000000 = {
 						CreatedOnToolsVersion = 26.3;
+					};
+					A01683E3309EC8C600BAFF46 = {
+						CreatedOnToolsVersion = 27.1;
+						TestTargetID = 000000000000000100000000;
 					};
 				};
 			};
@@ -94,12 +142,18 @@
 			projectRoot = "";
 			targets = (
 				000000000000000100000000 /* Dev Assist */,
+				A01683E3309EC8C600BAFF46 /* Dev AssistTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		000000000000000140000000 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		A01683E2309EC8C600BAFF46 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
 			);
@@ -112,7 +166,20 @@
 			files = (
 			);
 		};
+		A01683E0309EC8C600BAFF46 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A01683E9309EC8C600BAFF46 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 000000000000000100000000 /* Dev Assist */;
+			targetProxy = A01683E8309EC8C600BAFF46 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		000000000000000011000000 /* Debug configuration for PBXProject "DevAssist" */ = {
@@ -171,7 +238,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 26.6.2;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -235,7 +302,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 26.6.2;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PROJECT_UNIQUE_VALUE = BP638XP1;
@@ -331,6 +398,48 @@
 			};
 			name = Release;
 		};
+		A01683EA309EC8C600BAFF46 /* Debug configuration for PBXNativeTarget "Dev AssistTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "au.com.moonspark.Dev-AssistTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Dev Assist.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Dev Assist";
+			};
+			name = Debug;
+		};
+		A01683EB309EC8C600BAFF46 /* Release configuration for PBXNativeTarget "Dev AssistTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "au.com.moonspark.Dev-AssistTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Dev Assist.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Dev Assist";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -347,6 +456,14 @@
 			buildConfigurations = (
 				000000000000000111000000 /* Debug configuration for PBXNativeTarget "Dev Assist" */,
 				000000000000000112000000 /* Release configuration for PBXNativeTarget "Dev Assist" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		A01683EC309EC8C600BAFF46 /* Build configuration list for PBXNativeTarget "Dev AssistTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A01683EA309EC8C600BAFF46 /* Debug configuration for PBXNativeTarget "Dev AssistTests" */,
+				A01683EB309EC8C600BAFF46 /* Release configuration for PBXNativeTarget "Dev AssistTests" */,
 			);
 			defaultConfigurationName = Release;
 		};

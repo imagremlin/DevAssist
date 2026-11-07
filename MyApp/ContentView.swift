@@ -150,7 +150,7 @@ struct ContentView: View {
     private var bottomBar: some View {
         HStack(spacing: 0) {
             Button {
-                if let text = clipboardService.readText(), let clip = store.makeClip(text)  {
+                if let text = clipboardService.readText(), let clip = ClipStore.makeClip(text)  {
                     if NSEvent.modifierFlags.contains(.option) {
                         editingClip = clip
                     } else {

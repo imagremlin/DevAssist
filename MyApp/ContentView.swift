@@ -16,11 +16,6 @@ struct ContentView: View {
         selection.flatMap { store[$0] }
     }
     
-    private var filteredClips: [Clip] {
-        guard !searchText.isEmpty else { return store.displayClips }
-        return store.displayClips.filter { $0.matches(searchText) }
-    }
-    
     private func show(_ toast: Toast) {
         withAnimation { self.toast = toast }
         toastTask?.cancel()
@@ -83,7 +78,7 @@ struct ContentView: View {
     }
     
     private var clipList: some View {
-        List(filteredClips, selection: $selection) { clip in
+        List(store.clips(matching: searchText), selection: $selection) { clip in
             HStack {
                 Text(clip.displayText)
                     .italic(!clip.title.isEmpty)

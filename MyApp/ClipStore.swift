@@ -37,6 +37,7 @@ class ClipStore {
         clips.first { $0.id == id }
     }
     
+        
     var displayClips: [Clip] {
         clips.sorted { $0.isLocked && !$1.isLocked }
     }
@@ -87,6 +88,11 @@ class ClipStore {
     }
     func pendingClip(_ id: Clip.ID) -> Clip? {
         pending[id]
+    }
+    
+    func clips(matching query: String) -> [Clip] {
+        guard !query.isEmpty else { return displayClips }
+        return displayClips.filter { $0.matches(query) }
     }
     
     func discardPending(_ id: Clip.ID) {

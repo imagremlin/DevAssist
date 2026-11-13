@@ -121,7 +121,7 @@ struct ClipStoreTests {
     @Test("LastUsed is updated properly")
     func lastUsedUpdate() throws {
         let store = ClipStore(persistent: false)
-        let originalLastUsed : Date = .now.addingTimeInterval(-60)
+        let originalLastUsed: Date = .now.addingTimeInterval(-60)
         let clip = store.addOrUpdate(Clip(text: "text", title: "title", lastUsed: originalLastUsed))
         store.markUsed(clip)
         let updatedClip = try #require(store[clip.id])
@@ -151,7 +151,7 @@ struct ClipStoreTests {
     }
     
     @Test("Remove Clip")
-    func RemoveClip() throws {
+    func removeClip() throws {
         let store = ClipStore(persistent: false)
         let clipId = store.addOrUpdate(Clip(text: "text", title: "title")).id
         
@@ -179,7 +179,8 @@ struct ClipStoreTests {
         #expect(try #require(store[clipId]).isLocked)
         
         store.toggleLock(clipId)
-        #expect(!(try #require(store[clipId])).isLocked)
+        let clip = try #require(store[clipId])
+        #expect(!clip.isLocked)
     }
     
     @Test("Locked clips display first")
@@ -190,6 +191,91 @@ struct ClipStoreTests {
         
         #expect(store.displayClips[0].id == lockedClipId)
     }
+    
+    @Test("Empty search returns all clips")
+    func emptySearch() throws {
+        let store = ClipStore(persistent: false)
+        store.addOrUpdate(Clip(text: "text1", title: "title1"))
+        store.addOrUpdate(Clip(text: "text2", title: "title2"))
+        
+        let searchResult = store.clips(matching: "")
+        
+        #expect(searchResult.count == 2)
+    }
+
+    @Test("Search is case insensitive")
+    func caseInsensitiveSearch() throws {
+        let store = ClipStore(persistent: false)
+        let clipId = store.addOrUpdate(Clip(text: "text1", title: "title1")).id
+        store.addOrUpdate(Clip(text: "text2", title: "title2"))
+        
+        let searchResult = store.clips(matching: "TEXT1")
+        
+        #expect(searchResult.count == 1)
+        #expect(searchResult[0].id == clipId)
+    }
+ 
+    @Test("Search by title")
+    func titleSearch() throws {
+        let store = ClipStore(persistent: false)
+        store.addOrUpdate(Clip(text: "text1", title: "title1"))
+        store.addOrUpdate(Clip(text: "text2", title: "title2"))
+        store.addOrUpdate(Clip(text: "nomatch", title: "nomatch"))
+        
+        let searchResult = store.clips(matching: "title")
+        
+        #expect(searchResult.count == 2)
+    }
+    
+
+    @Test("Empty search returns locked clips first")
+    func lockedClipsOnEmptySearch() throws {
+        let store = ClipStore(persistent: false)
+        store.addOrUpdate(Clip(text: "text1", title: "title1"))
+        let clip2Id = store.addOrUpdate(Clip(text: "text2", isLocked: true, title: "title2")).id
+        
+        let searchResult = store.clips(matching: "")
+        
+        #expect(searchResult.count == 2)
+        #expect(searchResult[0].id == clip2Id)
+    }
+
+    @Test("Search returns locked clips first")
+    func lockedClipsSearch() throws {
+        let store = ClipStore(persistent: false)
+        store.addOrUpdate(Clip(text: "text1", title: "title1"))
+        let clip2Id = store.addOrUpdate(Clip(text: "text2", isLocked: true, title: "title2")).id
+        store.addOrUpdate(Clip(text: "nomatch", title: "title1"))
+        
+        let searchResult = store.clips(matching: "text")
+        
+        #expect(searchResult.count == 2)
+        #expect(searchResult[0].id == clip2Id)
+    }
+
+    @Test("Search does not return sensitive clips by text")
+    func sensitiveSearchByText() throws {
+        let store = ClipStore(persistent: false)
+        store.addOrUpdate(Clip(text: "text1", title: "title1", isSensitive: true))
+        let clip2Id = store.addOrUpdate(Clip(text: "text2", isLocked: true, title: "title2")).id
+        
+        let searchResult = store.clips(matching: "text")
+        
+        #expect(searchResult.count == 1)
+        #expect(searchResult[0].id == clip2Id)
+    }
+
+    @Test("Search returns sensitive clips by title")
+    func sensitiveSearchByTitle() throws {
+        let store = ClipStore(persistent: false)
+        store.addOrUpdate(Clip(text: "text1", title: "title1", isSensitive: true))
+        store.addOrUpdate(Clip(text: "text2", isLocked: true, title: "title2"))
+        
+        let searchResult = store.clips(matching: "title")
+        
+        #expect(searchResult.count == 2)
+    }
+
 }
 
 struct ClipTests {

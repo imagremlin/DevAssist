@@ -19,6 +19,7 @@
 /* Begin PBXFileReference section */
 		000000000000000000000120 /* Dev Assist.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Dev Assist.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A01683E4309EC8C600BAFF46 /* Dev AssistTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Dev AssistTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A0DC303F30A7C06B00E891B1 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -53,6 +54,7 @@
 			children = (
 				000000000000000000000010 /* MyApp */,
 				A01683E5309EC8C600BAFF46 /* Dev AssistTests */,
+				A0DC303F30A7C06B00E891B1 /* Base.xcconfig */,
 				000000000000000000000020 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -316,11 +318,10 @@
 		};
 		000000000000000111000000 /* Debug configuration for PBXNativeTarget "Dev Assist" */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A0DC303F30A7C06B00E891B1 /* Base.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
-				CODE_SIGN_IDENTITY = "Dev Assist Local Signing";
-				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
@@ -358,11 +359,10 @@
 		};
 		000000000000000112000000 /* Release configuration for PBXNativeTarget "Dev Assist" */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A0DC303F30A7C06B00E891B1 /* Base.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
-				CODE_SIGN_IDENTITY = "Dev Assist Local Signing";
-				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;

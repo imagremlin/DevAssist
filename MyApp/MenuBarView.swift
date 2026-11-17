@@ -34,6 +34,7 @@ struct MenuBarView: View {
         Button("Clear Unlocked") {
             store.removeAll()
         }
+        Divider()
         Button("Log Processor…") {
             openWindow.bringToFront(.logProcessor)
         }

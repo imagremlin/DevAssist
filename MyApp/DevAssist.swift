@@ -4,6 +4,7 @@ import SwiftUI
     
     @State private var store = ClipStore(persistent: !ProcessInfo.processInfo.isRunningTests)
     @State private var clipboardService = ClipboardService()
+    @State private var typeService = TypeService()
     
     var body: some Scene {
         Window(AppWindow.main.title, id: AppWindow.main.id) {
@@ -20,6 +21,7 @@ import SwiftUI
             MenuBarView()
                 .environment(store)
                 .environment(clipboardService)
+                .environment(typeService)
         }
         
         Window(AppWindow.logProcessor.title, id: AppWindow.logProcessor.id) {

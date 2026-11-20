@@ -10,14 +10,24 @@ import SwiftUI
 struct MenuBarView: View {
     @Environment(ClipStore.self) private var store
     @Environment(ClipboardService.self) private var clipboardService
+    @Environment(TypeService.self) private var typeService
     @Environment(\.openWindow) private var openWindow
+    @AppStorage("autotype") private var autotype = false
     
     var body: some View {
         ForEach (store.recentClips) { clip in
             Button(clip.menuTitle) {
-                clipboardService.copy(clip.text, concealed: clip.isSensitive)
+                if (autotype) {
+                    Task {
+                        await typeService.type(clip.text)
+                    }
+                } else {
+                    clipboardService.copy(clip.text, concealed: clip.isSensitive)
+                }
                 store.markUsed(clip)
-            }
+            }.modifierKeyAlternate(.option, {Button((autotype ? "Copy " : "") + clip.menuTitle) {
+                clipboardService.copy(clip.text, concealed: clip.isSensitive)
+            }})
         }
         Divider()
         Button("Add from Clipboard") {
@@ -38,6 +48,7 @@ struct MenuBarView: View {
         Button("Log Processor…") {
             openWindow.bringToFront(.logProcessor)
         }
+        Toggle("Autotype", isOn: $autotype)
         Divider()
         Button("Open Dev Assist") {
             openWindow.bringToFront(.main)
@@ -47,6 +58,5 @@ struct MenuBarView: View {
         }.keyboardShortcut("q")
     }
 }
-
 
 

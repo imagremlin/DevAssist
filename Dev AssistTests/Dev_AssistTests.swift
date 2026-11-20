@@ -330,6 +330,7 @@ struct ClipTests {
         #expect(!clip.isSensitive)
         #expect(clip.title == "")
         #expect(clip.lastUsed == nil)
+        #expect(!clip.autotypeAlways)
     }
         
     @Test("Encoding writes ‘title’, not the legacy keys")

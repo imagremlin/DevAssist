@@ -14,6 +14,8 @@ nonisolated struct Clip: Identifiable, Codable, Equatable {
     var title = ""
     var isSensitive = false
     var lastUsed: Date?
+    var autotypeAlways = false
+    
     var displayText: String {
         let source = !title.isEmpty ? title
                    : isSensitive    ? "••••••"
@@ -50,10 +52,11 @@ nonisolated extension Clip {
                     legacy.decodeIfPresent(String.self, forKey: .mask) ??
                     ""
         lastUsed = try c.decodeIfPresent(Date.self, forKey: .lastUsed)
+        autotypeAlways = try c.decodeIfPresent(Bool.self, forKey: .autotypeAlways) ?? false
     }
     
     nonisolated enum CodingKeys: String, CodingKey {
-        case id, text, isLocked, isSensitive, lastUsed, title
+        case id, text, isLocked, isSensitive, lastUsed, title, autotypeAlways
     }
     
     nonisolated private enum LegacyKeys: String, CodingKey {

@@ -21,9 +21,10 @@ struct PropertiesView: View {
     var body: some View {
         VStack {
             Form {
+                TextField("Title", text: $draft.title)
                 Toggle("Locked", isOn: $draft.isLocked)
                 Toggle("Sensitive", isOn: $draft.isSensitive)
-                TextField("Title", text: $draft.title)
+                Toggle("Autotype Always", isOn: $draft.autotypeAlways)
             }
             Divider()
             HStack{

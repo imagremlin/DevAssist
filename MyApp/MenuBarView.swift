@@ -14,19 +14,23 @@ struct MenuBarView: View {
     @Environment(\.openWindow) private var openWindow
     @AppStorage("autotype") private var autotype = false
     
+    
+    func use(_ clip: Clip) {
+        if autotype || clip.autotypeAlways {
+            typeService.type(clip.text)
+        } else {
+            clipboardService.copy(clip.text, concealed: clip.isSensitive)
+        }
+        store.markUsed(clip)
+    }
+    
     var body: some View {
-        ForEach (store.recentClips) { clip in
+        ForEach(store.recentClips) { clip in
             Button(clip.menuTitle) {
-                if (autotype) {
-                    Task {
-                        await typeService.type(clip.text)
-                    }
-                } else {
-                    clipboardService.copy(clip.text, concealed: clip.isSensitive)
-                }
-                store.markUsed(clip)
-            }.modifierKeyAlternate(.option, {Button((autotype ? "Copy " : "") + clip.menuTitle) {
+                use(clip)
+            }.modifierKeyAlternate(.option, {Button((autotype || clip.autotypeAlways ? "Copy: " : "") + clip.menuTitle) {
                 clipboardService.copy(clip.text, concealed: clip.isSensitive)
+                store.markUsed(clip)
             }})
         }
         Divider()
@@ -34,7 +38,7 @@ struct MenuBarView: View {
             if let text = clipboardService.readText(), let clip = ClipStore.makeClip(text) {
                 store.addOrUpdate(clip)
             }
-        }.modifierKeyAlternate(.option, {Button("Add with Title") {
+        }.modifierKeyAlternate(.option, {Button("Add with Title…") {
             if let text = clipboardService.readText(),let clip = ClipStore.makeClip(text) {
                 store.addPending(clip)
                 openWindow.bringToFront(.clipProperties, value: clip.id)

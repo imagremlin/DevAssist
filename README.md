@@ -22,6 +22,7 @@ Right-click an entry and choose **Get information…** (or select it and click *
   - Search only matches the title, never the hidden text.
   - When copied, the clipboard entry is marked as concealed, so clipboard managers that honour the convention skip it.
   - The clipboard is cleared after 30 seconds, unless something else has been copied in the meantime.
+- **Autotype Always**: selecting the entry from the menu bar always types it, even when autotype mode is off. See [Autotype](#autotype).
 
 The right-click menu also offers **Copy**, **Update** (replace the entry's text with the clipboard), **Lock/Unlock**, **Make Sensitive** and **Remove**.
 
@@ -29,9 +30,25 @@ The right-click menu also offers **Copy**, **Update** (replace the entry's text 
 
 The clipboard icon in the menu bar gives quick access without opening the window:
 
-- The **10 most recently used** entries. Select one to copy it.
+- The **10 most recently used** entries. Select one to copy it (or type it, see [Autotype](#autotype)).
 - **Add from Clipboard**. Hold <kbd>Option</kbd> to get **Add with Title…** instead.
-- **Clear Unlocked**, **Log Processor…**, **Open Dev Assist** and **Quit**.
+- **Clear Unlocked**, **Log Processor…**, the **Autotype** toggle, **Open Dev Assist** and **Quit**.
+
+## Autotype
+
+Instead of copying an entry to the clipboard, Dev Assist can **type** it into whatever app and field has the keyboard focus. This works from the menu bar only: opening the menu leaves focus where your cursor was, so the text goes there.
+
+- Turn on **Autotype** in the menu bar menu (or **Tools → Autotype**). Selecting an entry from the menu bar then types it.
+- Mark an entry **Autotype Always** in its properties to type it even when autotype mode is off.
+- Hold <kbd>Option</kbd> while the menu is open to **copy** an entry instead of typing it. The entry's label changes to show it will be copied.
+- Line breaks are typed as <kbd>Return</kbd> and tabs as <kbd>Tab</kbd>, so a single entry such as `username⇥password↵` fills in a login form and submits it.
+- Typed text never touches the clipboard, which makes autotype a good fit for sensitive entries.
+
+> [!IMPORTANT]
+> Autotype needs **Accessibility** permission: **System Settings → Privacy & Security → Accessibility**, then enable **Dev Assist**. Without it, nothing is typed. The permission is tied to the app's signature, so ad hoc builds may need re-approving after a rebuild (see [Building](#building)).
+
+> [!CAUTION]
+> Text is typed wherever the focus is. Check where your cursor is before typing a password, so it doesn't end up in a chat window or document.
 
 ## Log Processor
 
@@ -54,7 +71,9 @@ Details:
 
 ## Security
 
-Saved data is encrypted. The encryption key is stored in your Keychain, so macOS will ask for access the first time.
+Saved data is encrypted and stored in `~/Library/Application Support/DevAssist/clips.json`. The encryption key is stored in your Keychain, so macOS will ask for access the first time.
+
+Dev Assist is not sandboxed, because autotype requires sending keyboard input to other apps.
 
 > [!TIP]
 > Click **Always Allow** so it won't ask again.
@@ -63,7 +82,7 @@ Saved data is encrypted. The encryption key is stored in your Keychain, so macOS
 
 Open `DevAssist.xcodeproj` in Xcode and run.
 
-Signing is configured in `Base.xcconfig`. By default the app is signed to run locally (ad hoc), which works on any Mac but means the Keychain prompt reappears after each rebuild. To avoid that, create a self-signed code signing certificate (**Keychain Access → Certificate Assistant → Create a Certificate…**, type **Code Signing**) and a `Local.xcconfig` next to `Base.xcconfig`:
+Signing is configured in `Base.xcconfig`. By default the app is signed to run locally (ad hoc), which works on any Mac but means the Keychain prompt reappears after each rebuild, and the Accessibility permission for autotype may need re-approving. To avoid that, create a self-signed code signing certificate (**Keychain Access → Certificate Assistant → Create a Certificate…**, type **Code Signing**) and a `Local.xcconfig` next to `Base.xcconfig`:
 
 ```
 CODE_SIGN_IDENTITY = <your certificate name>

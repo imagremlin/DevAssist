@@ -84,6 +84,10 @@ struct ContentView: View {
                     .italic(!clip.title.isEmpty)
                     .help(clip.tooltip)
                 Spacer()
+                if clip.autotypeAlways {
+                    Image(systemName: "keyboard")
+                        .foregroundStyle(.secondary)
+                }
                 if clip.isSensitive {
                     Image(systemName: "eye.slash")
                         .foregroundStyle(.secondary)

@@ -9,18 +9,22 @@ import SwiftUI
 
 @Observable
 class TypeService {
+    private var typingTask: Task<Void, Never>?
     
-    func type(_ string: String) async {
-        try? await Task.sleep(for: .milliseconds(150))
-        for char in string {
-            if char.isNewline {
-                press(36)   // Return
-            } else if char == "\t" {
-                press(48)   // Tab
-            } else {
-                type(char)
+    func type(_ string: String) {
+        typingTask?.cancel()
+        typingTask = Task {
+            try? await Task.sleep(for: .milliseconds(150))
+            for char in string {
+                if char.isNewline {
+                    press(36)   // Return
+                } else if char == "\t" {
+                    press(48)   // Tab
+                } else {
+                    type(char)
+                }
+                try? await Task.sleep(for: .milliseconds(50))
             }
-            try? await Task.sleep(for: .milliseconds(50))
         }
     }
     

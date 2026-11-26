@@ -14,6 +14,7 @@ import SwiftUI
         }.commands {
             CommandMenu("Tools") {
                 ToolsMenu()
+                .environment(clipboardService)
             }
         }.windowResizability(.contentMinSize)
         

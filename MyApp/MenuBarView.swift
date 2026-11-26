@@ -14,7 +14,6 @@ struct MenuBarView: View {
     @Environment(\.openWindow) private var openWindow
     @AppStorage("autotype") private var autotype = false
     
-    
     func use(_ clip: Clip) {
         if autotype || clip.autotypeAlways {
             typeService.type(clip.text)
@@ -51,6 +50,9 @@ struct MenuBarView: View {
         Divider()
         Button("Log Processor…") {
             openWindow.bringToFront(.logProcessor)
+        }
+        Button("Remove Formatting") {
+            clipboardService.removeFormatting()
         }
         Toggle("Autotype", isOn: $autotype)
         Divider()

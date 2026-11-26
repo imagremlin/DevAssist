@@ -38,4 +38,10 @@ class ClipboardService {
             }
         }
     }
+    
+    func removeFormatting() {
+        if let str = readText() {
+            copy(str);
+        }
+    }
 }

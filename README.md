@@ -69,6 +69,12 @@ Details:
 > [!TIP]
 > Choose a prefix that won't appear inside your messages, e.g. `TW-1234:` or `##`, since text is split at every occurrence of the prefix.
 
+## Remove Formatting
+Removes all formatting from text in the clipboard.
+
+> [!TIP]
+> Ensure the application you're pasting into doesn't have hidden formatting markers 
+
 ## Security
 
 Saved data is encrypted and stored in `~/Library/Application Support/DevAssist/clips.json`. The encryption key is stored in your Keychain, so macOS will ask for access the first time.
